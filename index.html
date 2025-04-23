@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AHMED MOBILE</title>
+    <link rel="icon" href="ahmedmobile.png" type="image/x-icon" />
+    <!-- Librairies CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/css/datepicker.min.css"
+    />
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="header">
+      <h2>Gestion Commerciale - Ahmed Mobile</h2>
+      <div class="current-date" id="currentDate"></div>
+    </div>
+
+    <div class="day-navigation">
+      <button class="nav-button" onclick="changeDay(-1)">
+        <i class="fas fa-chevron-left"></i> Jour précédent
+      </button>
+
+      <div class="datepicker-container">
+        <span class="day-info" id="currentDayDisplay"></span>
+        <button class="calendar-button" id="calendarTrigger">
+          <i class="fas fa-calendar-alt"></i> Changer la date
+        </button>
+        <input
+          type="text"
+          class="datepicker"
+          id="datepicker"
+          style="display: none"
+        />
+      </div>
+
+      <button class="nav-button" onclick="changeDay(1)">
+        Jour suivant <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="sales">Ventes</div>
+      <div class="tab" data-tab="credits">Crédits</div>
+    </div>
+
+    <!-- Ventes Tab -->
+    <div id="sales" class="tab-content active">
+      <div class="form-container">
+        <form id="productForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="productName">Nom du produit</label>
+              <input
+                type="text"
+                id="productName"
+                placeholder="Entrez le nom du produit"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="productPrice">Prix (DH)</label>
+              <input
+                type="number"
+                id="productPrice"
+                placeholder="Entrez le prix"
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn-success">
+            Ajouter produit vendu
+          </button>
+        </form>
+      </div>
+
+      <div class="item-list" id="productList">
+        <div class="empty-state">
+          <i class="fas fa-box-open"></i>
+          <p>Aucun produit enregistré</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crédits Tab -->
+    <div id="credits" class="tab-content">
+      <div class="form-container">
+        <form id="creditForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="borrowerName">Nom de l'emprunteur</label>
+              <input
+                type="text"
+                id="borrowerName"
+                placeholder="Saisir le nom de l'emprunteur"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="creditType">Type de prêt</label>
+              <input
+                type="text"
+                id="creditType"
+                placeholder="Genre du prêt"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="creditAmount">Montant (DH)</label>
+              <input
+                type="number"
+                id="creditAmount"
+                placeholder="Prix du prêt"
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn-success">Enregistrer crédit</button>
+        </form>
+      </div>
+
+      <div class="item-list" id="creditList">
+        <div class="empty-state">
+          <i class="fas fa-hand-holding-usd"></i>
+          <p>Aucun crédit enregistré</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-label">Ventes totales</div>
+          <div class="stat-value" id="totalSales">0.00 DH</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Crédits totaux</div>
+          <div class="stat-value" id="totalCredits">0.00 DH</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Crédits impayés</div>
+          <div class="stat-value" id="pendingCredits">0.00 DH</div>
+        </div>
+      </div>
+
+      <div class="backup-section">
+        <div class="pdf-button-container">
+          <button onclick="exportToPDF()" class="btn-pdf">
+            <i class="fas fa-file-pdf"></i> Générer le Rapport PDF
+          </button>
+        </div>
+        <div id="backupStatus">Prêt pour génération de rapport</div>
+      </div>
+    </footer>
+
+    <div class="section">
+      <h2 class="section-title">Calcul de Marge</h2>
+      <div class="form-container">
+        <form id="marginForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="yesterdayCash">Fond de caisse d'hier (DH) :</label>
+              <input
+                type="number"
+                id="yesterdayCash"
+                placeholder="Montant"
+                min="0"
+                value="707"
+              />
+            </div>
+            <div class="form-group">
+              <label for="todayCash">Fond de caisse d'aujourd'hui (DH) :</label>
+              <input
+                type="number"
+                id="todayCash"
+                placeholder="Montant"
+                min="0"
+                value="345"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="yesterdayDeler">Total des 3 Dealers d'hier (DH) :</label>
+              <input
+                type="number"
+                id="yesterdayDeler"
+                placeholder="Montant"
+                min="0"
+                value="293"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inwiRecharge" style="color: #9f339f;"
+                >Recharge de Dealer Inwi (DH) :  <a href="https://www.inwi.ma/" target="_blank"><img src="inwi.png" width="50px"></a></label
+              >
+              <input
+                type="number"
+                id="inwiRecharge"
+                placeholder="Montant"
+                min="0"
+                value="221"
+                class="recharge-input"
+              />
+            </div>
+            <div class="form-group">
+              <label for="orangeRecharge" style="color: rgb(234, 124, 8);"
+                >Recharge de Dealer Orange (DH) :  <a href="https://www.orange.ma/" target="_blank"><img src="orange.png" width="35px"></a></label
+              >
+              <input
+                type="number"
+                id="orangeRecharge"
+                placeholder="Montant"
+                min="0"
+                value="23"
+                class="recharge-input"
+              />
+            </div>
+            <div class="form-group">
+              <label for="iamRecharge" style="color: rgb(2, 2, 187);"
+                >Recharge de Dealer IAM (DH) :  <a href="https://www.iam.ma/index.aspx" target="_blank"><img src="Maroc_telecom.png" width="30px"></a></label
+              >
+              <input
+                type="number"
+                id="iamRecharge"
+                placeholder="Montant"
+                min="0"
+                value="3123"
+                class="recharge-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="remainingInwi" style="color: #9f339f;">Reste de Dealer Inwi (DH) :  <a href="https://www.inwi.ma/" target="_blank"><img src="inwi.png" width="50px"></a></label>
+              <input
+                type="number"
+                id="remainingInwi"
+                placeholder="Montant"
+                min="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="remainingOrange" style="color: rgb(234, 124, 8);">Le Reste de Dealer Orange (DH) :  <a href="https://www.orange.ma/" target="_blank"><img src="orange.png" width="35px"></a></label>
+              <input
+                type="number"
+                id="remainingOrange"
+                placeholder="Montant"
+                min="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="remainingIAM" style="color: rgb(2, 2, 187);">Reste Dealer IAM (DH) :  <a href="https://www.iam.ma/index.aspx" target="_blank"><img src="Maroc_telecom.png" width="30px"></a></label>
+              <input
+                type="number"
+                id="remainingIAM"
+                placeholder="Montant"
+                min="0"
+              />
+            </div>
+          </div>
+
+          <div class="form-group" style="height: 50px; font-weight: bold; margin-top: 28px; margin-left: 5px; color: rgb(4, 38, 4);">
+            <p id="totalDealersToday">Le Reste des 3 Dealers d'aujourd'hui : 0 DH</p>
+          </div>
+
+          <div class="form-group">
+            <label for="remainingCashe">Reste d'Argents (DH) :</label>
+            <input
+              type="number"
+              id="remainingCashe"
+              placeholder="Montant"
+              min="0"
+            />
+          </div>
+        </div>
+
+          <button type="button" onclick="calculateMargin()" class="btn-info">
+            Calculer la Marge
+          </button>
+
+          <div
+            class="result"
+            style="
+              margin-top: 20px;
+              padding: 15px;
+              background-color: #f8f9fa;
+              border-radius: 4px;
+            "
+          >
+            <h3>La Marge : <span id="marginResult">0.00 DH</span></h3>
+          </div>
+        </form>
+      </div>
+
+      <div style="text-align: center;">
+        <p>
+          2025 Ahmed Mobile. &copy; Tous droits réservés à <a href="https://www.instagram.com/rfchatt" target="_blank" style="text-decoration: none; color: black;">Abderrafie</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function calculateMargin() {
+        // Récupération des valeurs
+        const yesterdayCash =
+          parseFloat(document.getElementById("yesterdayCash").value) || 0;
+        const todayCash =
+          parseFloat(document.getElementById("todayCash").value) || 0;
+        const yesterdayDeler =
+          parseFloat(document.getElementById("yesterdayDeler").value) || 0;
+
+        // Recharges
+        const inwiRecharge =
+          parseFloat(document.getElementById("inwiRecharge").value) || 0;
+        const orangeRecharge =
+          parseFloat(document.getElementById("orangeRecharge").value) || 0;
+        const iamRecharge =
+          parseFloat(document.getElementById("iamRecharge").value) || 0;
+        const totalRecharges = inwiRecharge + orangeRecharge + iamRecharge;
+
+        // Restes Deler
+        const remainingInwi =
+          parseFloat(document.getElementById("remainingInwi").value) || 0;
+        const remainingOrange =
+          parseFloat(document.getElementById("remainingOrange").value) || 0;
+        const remainingIAM =
+          parseFloat(document.getElementById("remainingIAM").value) || 0;
+        const totalRemaining = remainingInwi + remainingOrange + remainingIAM;
+        // ====================================================================================
+        const remainingCashe =
+          parseFloat(document.getElementById("remainingCashe").value) || 0;
+        // ====================================================================================
+
+        // Statistiques
+        const totalSales =
+          parseFloat(
+            document.getElementById("totalSales").textContent.replace(" DH", "")
+          ) || 0;
+        const pendingCredits =
+          parseFloat(
+            document
+              .getElementById("pendingCredits")
+              .textContent.replace(" DH", "")
+          ) || 0;
+
+          // Calcul du total des dealers aujourd'hui
+          const totalDealersToday = remainingInwi + remainingOrange + remainingIAM;
+          // Mise à jour de l'affichage
+          document.getElementById("totalDealersToday").textContent = 
+          `Total de Reste des 3 Dealers : ${totalDealersToday.toFixed(2)} DH`; //-----------------------------------
+
+        // Calcul avec inversion du signe
+        const margin =
+          -1 *
+          (yesterdayDeler +
+            totalRecharges -
+            totalRemaining +
+            totalSales -
+            pendingCredits -
+            todayCash +
+            yesterdayCash) + remainingCashe;
+
+        // Affichage
+        document.getElementById("marginResult").textContent =
+          margin.toFixed(2) + " DH";
+
+        // Sauvegarde
+        saveMarginData({
+          yesterdayCash,
+          todayCash,
+          yesterdayDeler,
+          recharges: {
+            inwi: inwiRecharge,
+            orange: orangeRecharge,
+            iam: iamRecharge,
+            total: totalRecharges,
+          },
+          remaining: {
+            inwi: remainingInwi,
+            orange: remainingOrange,
+            iam: remainingIAM,
+            total: totalRemaining,
+            cashe: remainingCashe,
+          },
+          totalSales,
+          pendingCredits,
+          margin,
+        });
+
+        if (margin < 0) {
+          marginResult.style.color = "red";
+        } else {
+          marginResult.style.color = ""; // Réinitialise à la couleur par défaut
+        }
+
+      }
+
+      function saveMarginData(data) {
+        const dateKey = formatDate(currentDate);
+        if (!allData[dateKey]) {
+          allData[dateKey] = {};
+        }
+        allData[dateKey].marginData = data;
+        localStorage.setItem("commercialData", JSON.stringify(allData));
+      }
+
+      function loadMarginData() {
+    const dateKey = formatDate(currentDate);
+    
+    // Si pas de données pour ce jour, réinitialise les champs
+    if (!allData[dateKey] || !allData[dateKey].marginData) {
+        resetMarginInputs();
+        return;
+    }
+
+    const marginData = allData[dateKey].marginData;
+    
+    // Liste complète des champs avec leurs valeurs par défaut
+    const fields = {
+        yesterdayCash: marginData.yesterdayCash || 0,
+        todayCash: marginData.todayCash || 0,
+        yesterdayDeler: marginData.yesterdayDeler || 0,
+        inwiRecharge: marginData.recharges?.inwi || 0,
+        orangeRecharge: marginData.recharges?.orange || 0,
+        iamRecharge: marginData.recharges?.iam || 0,
+        remainingInwi: marginData.remaining?.inwi || 0,
+        remainingOrange: marginData.remaining?.orange || 0,
+        remainingIAM: marginData.remaining?.iam || 0,
+        remainingCashe: marginData.remaining?.cashe || 0
+    };
+
+    // Remplit les champs
+    Object.entries(fields).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.value = value;
+    });
+
+    // Met à jour le résultat si disponible
+    if (marginData.margin !== undefined) {
+        document.getElementById("marginResult").textContent = 
+            marginData.margin.toFixed(2) + " DH";
+    }
+
+    // Calcul et affichage du total
+    const totalToday = 
+    (parseFloat(document.getElementById("remainingInwi").value || 0) +
+    (parseFloat(document.getElementById("remainingOrange").value || 0)) +
+    (parseFloat(document.getElementById("remainingIAM").value || 0)));
+
+    document.getElementById("totalDealersToday").textContent = 
+    `Total de Reste des 3 Dealers : ${totalToday.toFixed(2)} DH`; //--------------------------------
+
+    if (marginData.margin !== undefined) {
+    const marginResult = document.getElementById("marginResult");
+    marginResult.textContent = marginData.margin.toFixed(2) + " DH";
+    
+    if (marginData.margin < 0) {
+      marginResult.style.color = "red";
+    } else {
+      marginResult.style.color = "";
+    }
+  }
+}
+
+      // Modifiez la fonction loadDayData pour inclure le chargement des données de marge
+      function loadDayData(date) {
+        currentDate = date;
+        updateDateDisplay();
+
+        const dateKey = formatDate(date);
+        if (!allData[dateKey]) {
+          allData[dateKey] = {
+            products: [],
+            credits: [],
+            marginData: null,
+          };
+        }
+
+        products = allData[dateKey].products || [];
+        credits = allData[dateKey].credits || [];
+
+        renderProducts();
+        renderCredits();
+        updateStats();
+        loadMarginData();
+      }
+    </script>
+
+    <!-- Librairies JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.fr.min.js"></script>
+
+    <script>
+      // Initialisation jsPDF
+      const { jsPDF } = window.jspdf;
+
+      // Variables globales
+      let currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+      let allData = JSON.parse(localStorage.getItem("commercialData")) || {};
+      let products = [];
+      let credits = [];
+
+      // Formatage de la date au format JJ-MM-AAAA
+      function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      }
+
+      // Formatage complet pour affichage
+      function formatDateForDisplay(date) {
+        const options = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        };
+        return date.toLocaleDateString("fr-FR", options);
+      }
+
+      // Fonction pour réinitialiser les champs de marge
+      function resetMarginInputs() {
+        document.getElementById("yesterdayCash").value = "";
+        document.getElementById("todayCash").value = "";
+        document.getElementById("yesterdayDeler").value = "";
+        document.getElementById("inwiRecharge").value = "";
+        document.getElementById("orangeRecharge").value = "";
+        document.getElementById("iamRecharge").value = "";
+        document.getElementById("remainingInwi").value = "";
+        document.getElementById("remainingOrange").value = "";
+        document.getElementById("remainingIAM").value = "";
+        // ====================================================================================
+        document.getElementById("remainingCashe").value = "";
+        // ====================================================================================
+        document.getElementById("marginResult").textContent = "0.00 DH";
+      }
+
+      // Initialisation du calendrier
+      const datepicker = $("#datepicker").datepicker({
+        language: "fr",
+        autoClose: true,
+        dateFormat: "dd-mm-yyyy",
+        onSelect: function (formattedDate) {
+          const parts = formattedDate.split("-");
+          const selectedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+          selectedDate.setHours(0, 0, 0, 0);
+          loadDayData(selectedDate);
+        },
+      });
+
+      $("#calendarTrigger").click(function () {
+        datepicker.data("datepicker").show();
+      });
+
+      // Chargement des données du jour
+      function loadDayData(date) {
+        currentDate = date;
+        updateDateDisplay();
+
+        const dateKey = formatDate(date);
+        if (!allData[dateKey]) {
+          allData[dateKey] = {
+            products: [],
+            credits: [],
+            marginData: null,
+          };
+        }
+
+        // Réinitialiser les champs de marge à chaque changement de jour
+        resetMarginInputs();
+
+        products = allData[dateKey].products || [];
+        credits = allData[dateKey].credits || [];
+
+        renderProducts();
+        renderCredits();
+        updateStats();
+        loadMarginData(); // Charger les données de marge si elles existent
+      }
+
+      // Changement de jour
+      function changeDay(days) {
+        const newDate = new Date(currentDate);
+        newDate.setDate(newDate.getDate() + days);
+        loadDayData(newDate);
+      }
+
+      // Mise à jour de l'affichage des dates
+      function updateDateDisplay() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Mise à jour de la date affichée
+        const dayDisplay = document.getElementById("currentDayDisplay");
+        dayDisplay.textContent = formatDateForDisplay(currentDate);
+
+        // Mise à jour de la date système
+        document.getElementById("currentDate").textContent =
+          "Système: " + formatDate(currentDate);
+
+        // Highlight si c'est aujourd'hui
+        if (currentDate.getTime() === today.getTime()) {
+          dayDisplay.classList.add("today-highlight");
+        } else {
+          dayDisplay.classList.remove("today-highlight");
+        }
+      }
+
+      // Sauvegarde des données
+      function saveData() {
+        const dateKey = formatDate(currentDate);
+        allData[dateKey] = {
+          products: products,
+          credits: credits,
+        };
+
+        localStorage.setItem("commercialData", JSON.stringify(allData));
+        document.getElementById("backupStatus").textContent =
+          "Données mises à jour - " + new Date().toLocaleTimeString();
+      }
+
+      // Gestion des onglets
+      const tabs = document.querySelectorAll(".tab");
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+
+          document.querySelectorAll(".tab-content").forEach((content) => {
+            content.classList.remove("active");
+          });
+          document.getElementById(tab.dataset.tab).classList.add("active");
+        });
+      });
+
+      // Product Form
+      document
+        .getElementById("productForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const productName = document
+            .getElementById("productName")
+            .value.trim();
+          const productPrice = parseFloat(
+            document.getElementById("productPrice").value
+          );
+
+          if (productName && !isNaN(productPrice)) {
+            products.push({
+              id: Date.now(),
+              name: productName,
+              price: productPrice.toFixed(2),
+              sold: true,
+              date: currentDate.toISOString(),
+            });
+            saveData();
+            renderProducts();
+            updateStats();
+            this.reset();
+          }
+        });
+
+      // Credit Form
+      document
+        .getElementById("creditForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const borrowerName = document
+            .getElementById("borrowerName")
+            .value.trim();
+          const creditType = document.getElementById("creditType").value.trim();
+          const creditAmount = parseFloat(
+            document.getElementById("creditAmount").value
+          );
+
+          if (borrowerName && creditType && !isNaN(creditAmount)) {
+            credits.push({
+              id: Date.now(),
+              borrower: borrowerName,
+              type: creditType,
+              amount: creditAmount.toFixed(2),
+              paid: false,
+              date: currentDate.toISOString(),
+            });
+            saveData();
+            renderCredits();
+            updateStats();
+            this.reset();
+          }
+        });
+
+      // Render Products
+      function renderProducts() {
+        const productList = document.getElementById("productList");
+
+        if (products.length === 0) {
+          productList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p>Aucun produit enregistré</p>
+                    </div>
+                `;
+          return;
+        }
+
+        productList.innerHTML = "";
+
+        products.forEach((product) => {
+          const item = document.createElement("div");
+          item.className = "item";
+          item.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${product.name}</div>
+                        <div class="item-details">${
+                          product.price
+                        } DH - ${formatDate(new Date(product.date))}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-danger" data-id="${
+                          product.id
+                        }" data-type="product">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
+                    </div>
+                `;
+          productList.appendChild(item);
+        });
+      }
+
+      // Render Credits
+      function renderCredits() {
+        const creditList = document.getElementById("creditList");
+
+        if (credits.length === 0) {
+          creditList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <p>Aucun crédit enregistré</p>
+                    </div>
+                `;
+          return;
+        }
+
+        creditList.innerHTML = "";
+
+        credits.forEach((credit) => {
+          const item = document.createElement("div");
+          item.className = "item";
+          item.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${credit.borrower} - ${
+            credit.type
+          }</div>
+                        <div class="item-details">${
+                          credit.amount
+                        } DH - ${formatDate(new Date(credit.date))}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="${
+                          credit.paid ? "btn-warning" : "btn-success"
+                        }" 
+                                data-id="${
+                                  credit.id
+                                }" data-type="credit" data-action="toggle">
+                            <i class="fas fa-${
+                              credit.paid ? "undo" : "check"
+                            }"></i> ${
+            credit.paid ? "Marquer impayé" : "Marquer payé"
+          }
+                        </button>
+                        <button class="btn-danger" data-id="${
+                          credit.id
+                        }" data-type="credit" data-action="delete">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
+                    </div>
+                    <span class="badge ${
+                      credit.paid ? "badge-paid" : "badge-pending"
+                    }">
+                        <i class="fas fa-${
+                          credit.paid ? "check-circle" : "exclamation-circle"
+                        }"></i> ${credit.paid ? "Payé" : "Impayé"}
+                    </span>
+                `;
+          creditList.appendChild(item);
+        });
+      }
+
+      // Gestion des actions
+      document.addEventListener("click", function (e) {
+        if (e.target.tagName === "BUTTON" || e.target.closest("button")) {
+          const button =
+            e.target.tagName === "BUTTON"
+              ? e.target
+              : e.target.closest("button");
+          const id = parseInt(button.dataset.id);
+          const type = button.dataset.type;
+          const action = button.dataset.action;
+
+          if (type === "product") {
+            deleteProduct(id);
+          } else if (type === "credit") {
+            if (action === "toggle") {
+              toggleCreditStatus(id);
+            } else if (action === "delete") {
+              deleteCredit(id);
+            }
+          }
+        }
+      });
+
+      function deleteProduct(id) {
+        if (confirm("Supprimer ce produit ?")) {
+          products = products.filter((p) => p.id !== id);
+          saveData();
+          renderProducts();
+          updateStats();
+        }
+      }
+
+      function toggleCreditStatus(id) {
+        credits = credits.map((c) => {
+          if (c.id === id) {
+            return { ...c, paid: !c.paid };
+          }
+          return c;
+        });
+        saveData();
+        renderCredits();
+        updateStats();
+      }
+
+      function deleteCredit(id) {
+        if (confirm("Supprimer ce crédit ?")) {
+          credits = credits.filter((c) => c.id !== id);
+          saveData();
+          renderCredits();
+          updateStats();
+        }
+      }
+
+      function updateStats() {
+        // Sales
+        const totalSales = products.reduce(
+          (sum, p) => sum + parseFloat(p.price),
+          0
+        );
+        document.getElementById("totalSales").textContent =
+          totalSales.toFixed(2) + " DH";
+
+        // Credits
+        const totalCredits = credits.reduce(
+          (sum, c) => sum + parseFloat(c.amount),
+          0
+        );
+        const pendingCredits = credits.reduce(
+          (sum, c) => (!c.paid ? sum + parseFloat(c.amount) : sum),
+          0
+        );
+
+        document.getElementById("totalCredits").textContent =
+          totalCredits.toFixed(2) + " DH";
+        document.getElementById("pendingCredits").textContent =
+          pendingCredits.toFixed(2) + " DH";
+      }
+
+      // Fonction d'export PDF
+      // Modifiez la fonction exportToPDF() pour ajouter la section Marge
+      function exportToPDF() {
+        const doc = new jsPDF();
+
+        // En-tête
+        doc.setFontSize(18);
+        doc.setTextColor(40);
+        doc.text(
+          "Rapport Commercial - " + formatDateForDisplay(currentDate),
+          105,
+          15,
+          { align: "center" }
+        );
+
+        doc.setFontSize(12);
+        doc.setTextColor(100);
+        doc.text(`Généré le: ${formatDate(new Date())}`, 105, 22, {
+          align: "center",
+        });
+
+        // Section Ventes
+        doc.setFontSize(14);
+        doc.setTextColor(40);
+        doc.text("Détail des Ventes", 14, 35);
+
+        const ventesData = products.map((p) => [
+          p.name,
+          `${p.price} DH`,
+          formatDate(new Date(p.date)),
+        ]);
+
+        doc.autoTable({
+          head: [["Produit", "Prix", "Date"]],
+          body: ventesData,
+          startY: 40,
+          theme: "grid",
+          headStyles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            fontStyle: "bold",
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+          margin: { top: 40 },
+        });
+
+        // Section Crédits
+        doc.setFontSize(14);
+        doc.text("Détail des Crédits", 14, doc.autoTable.previous.finalY + 20);
+
+        const creditsData = credits.map((c) => [
+          c.borrower,
+          c.type,
+          `${c.amount} DH`,
+          c.paid ? "Payé" : "Impayé",
+          formatDate(new Date(c.date)),
+        ]);
+
+        doc.autoTable({
+          head: [["Client", "Type", "Montant", "Statut", "Date"]],
+          body: creditsData,
+          startY: doc.autoTable.previous.finalY + 25,
+          theme: "grid",
+          headStyles: {
+            fillColor: [142, 68, 173],
+            textColor: 255,
+            fontStyle: "bold",
+          },
+          columnStyles: {
+            3: { cellWidth: "auto", halign: "center" },
+          },
+          didDrawCell: (data) => {
+            if (data.column.index === 3 && data.cell.raw === "Impayé") {
+              doc.setTextColor(231, 76, 60);
+            } else if (data.column.index === 3 && data.cell.raw === "Payé") {
+              doc.setTextColor(39, 174, 96);
+            }
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+        });
+
+        // Section Statistiques
+        doc.setFontSize(14);
+        doc.text(
+          "Statistiques Globales",
+          14,
+          doc.autoTable.previous.finalY + 20
+        );
+
+        const totalVentes = products.reduce(
+          (sum, p) => sum + parseFloat(p.price),
+          0
+        );
+        const totalCredits = credits.reduce(
+          (sum, c) => sum + parseFloat(c.amount),
+          0
+        );
+        const creditsImpayes = credits.reduce(
+          (sum, c) => (!c.paid ? sum + parseFloat(c.amount) : sum),
+          0
+        );
+
+        doc.autoTable({
+          body: [
+            ["Total Ventes", `${totalVentes.toFixed(2)} DH`],
+            ["Crédits Impayés", `${creditsImpayes.toFixed(2)} DH`]
+          ],
+          startY: doc.autoTable.previous.finalY + 25,
+          theme: "plain",
+          styles: {
+            fontSize: 12,
+            cellPadding: 6,
+          },
+          columnStyles: {
+            0: { fontStyle: "bold", cellWidth: "auto" },
+            1: { fontStyle: "bold", halign: "right" },
+          },
+          headStyles: {
+            fillColor: [52, 152, 219],
+            textColor: 255,
+          },
+          margin: { top: 20 },
+        });
+
+        // Nouvelle Section: Calcul de Marge
+        doc.setFontSize(14);
+        doc.text("Calcul de Marge", 14, doc.autoTable.previous.finalY + 20);
+
+        // Récupérer les données de marge
+        const yesterdayCash =
+          parseFloat(document.getElementById("yesterdayCash").value) || 0;
+        const todayCash =
+          parseFloat(document.getElementById("todayCash").value) || 0;
+        const yesterdayDeler =
+          parseFloat(document.getElementById("yesterdayDeler").value) || 0;
+        const inwiRecharge =
+          parseFloat(document.getElementById("inwiRecharge").value) || 0;
+        const orangeRecharge =
+          parseFloat(document.getElementById("orangeRecharge").value) || 0;
+        const iamRecharge =
+          parseFloat(document.getElementById("iamRecharge").value) || 0;
+        const remainingInwi =
+          parseFloat(document.getElementById("remainingInwi").value) || 0;
+        const remainingOrange =
+          parseFloat(document.getElementById("remainingOrange").value) || 0;
+        const remainingIAM =
+          parseFloat(document.getElementById("remainingIAM").value) || 0;
+          // =========================================================================================================
+        const remainingCashe =
+          parseFloat(document.getElementById("remainingCashe").value) || 0;
+          // =========================================================================================================
+        const marginResult =
+          document.getElementById("marginResult").textContent;
+
+        doc.autoTable({
+          body: [
+            ["Fond de caisse d'hier", `${yesterdayCash.toFixed(2)} DH`],
+            ["Fond de caisse d'aujourd'hui", `${todayCash.toFixed(2)} DH`],
+            ["", ""],
+            ["Total des 3 Dealer d'hier", `${yesterdayDeler.toFixed(2)} DH`],
+            ["Recharge Inwi", `${inwiRecharge.toFixed(2)} DH`],
+            ["Recharge Orange", `${orangeRecharge.toFixed(2)} DH`],
+            ["Recharge IAM", `${iamRecharge.toFixed(2)} DH`],
+            ["", ""],
+            ["Reste Inwi", `${remainingInwi.toFixed(2)} DH`],
+            ["Reste Orange", `${remainingOrange.toFixed(2)} DH`],
+            ["Reste IAM", `${remainingIAM.toFixed(2)} DH`],
+            // =========================================================================================================
+            ["Total des 3 Dealer d'aujourd'hui", `${(remainingIAM+remainingInwi+remainingOrange).toFixed(2)} DH`],
+            // =========================================================================================================
+            ["", "___________"],
+            ["Reste d'Argent", `${remainingCashe.toFixed(2)} DH`],
+            ["Marge Calculée", marginResult],
+          ],
+          startY: doc.autoTable.previous.finalY + 25,
+          theme: "plain",
+          styles: {
+            fontSize: 12,
+            cellPadding: 6,
+          },
+          columnStyles: {
+            0: { fontStyle: "bold", cellWidth: "auto" },
+            1: { fontStyle: "bold", halign: "right" },
+          },
+          headStyles: {
+            fillColor: [155, 89, 182],
+            textColor: 255,
+          },
+          didDrawCell: (data) => {
+            if (data.column.index === 1 && data.row.index === 12) {
+              const marginValue = parseFloat(marginResult.replace(" DH", ""));
+              doc.setTextColor(marginValue >= 0 ? "#4CAF50" : "#F44336");
+            }
+          },
+          margin: { top: 20 },
+        });
+
+        // Pied de page
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(
+          `© ${new Date().getFullYear()} - Gestion Commerciale - Abderrafie Chate - Page ${doc.internal.getNumberOfPages()}`,
+          105,
+          285,
+          { align: "center" }
+        );
+
+        // Sauvegarde du PDF
+        doc.save(`rapport_commercial_${formatDate(currentDate)}.pdf`);
+
+        // Mise à jour du statut
+        document.getElementById("backupStatus").textContent =
+          "PDF généré avec succès - " + new Date().toLocaleString();
+      }
+      // Initialisation au chargement
+      document.addEventListener("DOMContentLoaded", function () {
+        loadDayData(currentDate);
+      });
+    </script>
+  </body>
+</html>
