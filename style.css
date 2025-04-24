@@ -3,7 +3,7 @@ body {
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: white;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -11,11 +11,12 @@ body {
   .header {
     text-align: center;
     margin-bottom: 20px;
-    color: #333;
+    color: rgb(17, 16, 61);
   }
   .current-date {
     font-size: 1.1em;
     color: rgb(67, 67, 67);
+    /* font-weight: bold; */
     margin-top: -15px;
     margin-bottom: 20px;
   }
@@ -24,7 +25,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    background-color: #fff;
+    /* background-color: white; */
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -59,7 +60,11 @@ body {
     border-radius: 4px;
     cursor: pointer;
     margin-left: 10px;
+    margin-right: 10px;
     white-space: nowrap;
+  }
+  .calendar-button i {
+    margin-left: -8px;
   }
   .datepicker-container {
     position: relative;
@@ -79,7 +84,7 @@ body {
     display: flex;
     margin-bottom: 0;
     border-bottom: 1px solid #ddd;
-    background-color: #f1f1f1;
+    background-color: rgba(235, 235, 235, 0.587);
     border-radius: 8px 8px 0 0;
     overflow: hidden;
   }
@@ -94,11 +99,11 @@ body {
   .tab.active {
     background-color: white;
     font-weight: bold;
-    border-top: 3px solid #2196f3;
+    border-top: 3px solid #0974cc;
   }
   .tab-content {
     display: none;
-    background-color: white;
+    background-color:white;
     padding: 20px;
     border-radius: 0 0 8px 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -288,7 +293,6 @@ body {
     }
   }
 
-  /* ----------- */
   /* Ajoutez ce style dans votre section CSS */
   .section {
     background-color: white;
