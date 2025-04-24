@@ -15,7 +15,7 @@ body {
   }
   .current-date {
     font-size: 1.1em;
-    color: #666;
+    color: rgb(67, 67, 67);
     margin-top: -15px;
     margin-bottom: 20px;
   }
