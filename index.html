@@ -316,166 +316,328 @@
     </div>
 
     <script>
+      // At the start of your script
+      let allData = JSON.parse(localStorage.getItem("commercialData")) || {};
+
       function calculateMargin() {
-        // Récupération des valeurs
-        const yesterdayCash =
-          parseFloat(document.getElementById("yesterdayCash").value) || 0;
-        const todayCash =
-          parseFloat(document.getElementById("todayCash").value) || 0;
-        const yesterdayDeler =
-          parseFloat(document.getElementById("yesterdayDeler").value) || 0;
+    // Récupération des valeurs
+    const yesterdayCash = parseFloat(document.getElementById("yesterdayCash").value) || 0;
+    const todayCash = parseFloat(document.getElementById("todayCash").value) || 0;
+    const yesterdayDeler = parseFloat(document.getElementById("yesterdayDeler").value) || 0;
 
-        // Recharges
-        const inwiRecharge =
-          parseFloat(document.getElementById("inwiRecharge").value) || 0;
-        const orangeRecharge =
-          parseFloat(document.getElementById("orangeRecharge").value) || 0;
-        const iamRecharge =
-          parseFloat(document.getElementById("iamRecharge").value) || 0;
-        const totalRecharges = inwiRecharge + orangeRecharge + iamRecharge;
+    // Recharges
+    const inwiRecharge = parseFloat(document.getElementById("inwiRecharge").value) || 0;
+    const orangeRecharge = parseFloat(document.getElementById("orangeRecharge").value) || 0;
+    const iamRecharge = parseFloat(document.getElementById("iamRecharge").value) || 0;
+    const totalRecharges = inwiRecharge + orangeRecharge + iamRecharge;
 
-        // Restes Deler
-        const remainingInwi =
-          parseFloat(document.getElementById("remainingInwi").value) || 0;
-        const remainingOrange =
-          parseFloat(document.getElementById("remainingOrange").value) || 0;
-        const remainingIAM =
-          parseFloat(document.getElementById("remainingIAM").value) || 0;
-        const totalRemaining = remainingInwi + remainingOrange + remainingIAM;
-        // ====================================================================================
-        const remainingCashe =
-          parseFloat(document.getElementById("remainingCashe").value) || 0;
-        // ====================================================================================
+    // Restes Deler
+    const remainingInwi = parseFloat(document.getElementById("remainingInwi").value) || 0;
+    const remainingOrange = parseFloat(document.getElementById("remainingOrange").value) || 0;
+    const remainingIAM = parseFloat(document.getElementById("remainingIAM").value) || 0;
+    const totalRemaining = remainingInwi + remainingOrange + remainingIAM;
 
-        // Statistiques
-        const totalSales =
-          parseFloat(
-            document.getElementById("totalSales").textContent.replace(" DH", "")
-          ) || 0;
-        const pendingCredits =
-          parseFloat(
-            document
-              .getElementById("pendingCredits")
-              .textContent.replace(" DH", "")
-          ) || 0;
+    // Reste d'argent
+    const remainingCashe = parseFloat(document.getElementById("remainingCashe").value) || 0;
 
-          // Calcul du total des dealers aujourd'hui
-          const totalDealersToday = remainingInwi + remainingOrange + remainingIAM;
-          // Mise à jour de l'affichage
-          document.getElementById("totalDealersToday").textContent = 
-          `Total de Reste des 3 Dealers : ${totalDealersToday.toFixed(2)} DH`; //-----------------------------------
+    // Statistiques
+    const totalSales = parseFloat(document.getElementById("totalSales").textContent.replace(" DH", "")) || 0;
+    const pendingCredits = parseFloat(document.getElementById("pendingCredits").textContent.replace(" DH", "")) || 0;
 
-        // Calcul avec inversion du signe
-        const margin =
-          -1 *
-          (yesterdayDeler +
-            totalRecharges -
-            totalRemaining +
-            totalSales -
-            pendingCredits -
-            todayCash +
-            yesterdayCash) + remainingCashe;
+    // Calcul du total des dealers aujourd'hui
+    const totalDealersToday = remainingInwi + remainingOrange + remainingIAM;
+    document.getElementById("totalDealersToday").textContent = 
+        `Total de Reste des 3 Dealers : ${totalDealersToday.toFixed(2)} DH`;
 
-        // Affichage
-        document.getElementById("marginResult").textContent =
-          margin.toFixed(2) + " DH";
+    // Calcul avec inversion du signe
+    const margin = -1 * (yesterdayDeler + totalRecharges - totalRemaining + totalSales - pendingCredits - todayCash + yesterdayCash) + remainingCashe;
 
-        // Sauvegarde
-        saveMarginData({
-          yesterdayCash,
-          todayCash,
-          yesterdayDeler,
-          recharges: {
+    // Affichage
+    const marginResult = document.getElementById("marginResult");
+    marginResult.textContent = margin.toFixed(2) + " DH";
+    marginResult.style.color = margin < 0 ? "red" : "";
+
+    // Sauvegarde des données
+    const dateKey = formatDate(currentDate);
+    if (!allData[dateKey]) {
+        allData[dateKey] = { products: [], credits: [] };
+    }
+    
+    allData[dateKey].marginData = {
+        yesterdayCash,
+        todayCash,
+        yesterdayDeler,
+        recharges: {
             inwi: inwiRecharge,
             orange: orangeRecharge,
             iam: iamRecharge,
-            total: totalRecharges,
-          },
-          remaining: {
+            total: totalRecharges
+        },
+        remaining: {
             inwi: remainingInwi,
             orange: remainingOrange,
             iam: remainingIAM,
             total: totalRemaining,
-            cashe: remainingCashe,
-          },
-          totalSales,
-          pendingCredits,
-          margin,
-        });
+            cashe: remainingCashe
+        },
+        totalSales,
+        pendingCredits,
+        margin,
+        totalDealersToday
+    };
 
-        if (margin < 0) {
-          marginResult.style.color = "red";
-        } else {
-          marginResult.style.color = ""; // Réinitialise à la couleur par défaut
-        }
+    // Sauvegarde complète dans localStorage
+    localStorage.setItem("commercialData", JSON.stringify(allData));
 
-      }
+    // Mise à jour du statut
+    document.getElementById("backupStatus").textContent =
+        "Données mises à jour - " + new Date().toLocaleTimeString();
 
-      function saveMarginData(data) {
-        const dateKey = formatDate(currentDate);
-        if (!allData[dateKey]) {
-          allData[dateKey] = {};
-        }
-        allData[dateKey].marginData = data;
-        localStorage.setItem("commercialData", JSON.stringify(allData));
-      }
+    return margin;
+}
 
-      function loadMarginData() {
+function saveMarginInputs() {  // -------------------------------////////////////
     const dateKey = formatDate(currentDate);
     
-    // Si pas de données pour ce jour, réinitialise les champs
+    // Create the date entry if it doesn't exist
+    if (!allData[dateKey]) {
+        allData[dateKey] = { products: [], credits: [] };
+    }
+    
+    // Create marginData object if it doesn't exist
+    if (!allData[dateKey].marginData) {
+        allData[dateKey].marginData = {};
+    }
+
+    // Save all current input values
+    allData[dateKey].marginData = {
+        yesterdayCash: parseFloat(document.getElementById("yesterdayCash").value) || 0,
+        todayCash: parseFloat(document.getElementById("todayCash").value) || 0,
+        yesterdayDeler: parseFloat(document.getElementById("yesterdayDeler").value) || 0,
+        recharges: {
+            inwi: parseFloat(document.getElementById("inwiRecharge").value) || 0,
+            orange: parseFloat(document.getElementById("orangeRecharge").value) || 0,
+            iam: parseFloat(document.getElementById("iamRecharge").value) || 0
+        },
+        remaining: {
+            inwi: parseFloat(document.getElementById("remainingInwi").value) || 0,
+            orange: parseFloat(document.getElementById("remainingOrange").value) || 0,
+            iam: parseFloat(document.getElementById("remainingIAM").value) || 0,
+            cashe: parseFloat(document.getElementById("remainingCashe").value) || 0
+        }
+    };
+
+    // Save to localStorage
+    localStorage.setItem("commercialData", JSON.stringify(allData));
+
+    // Add visual feedback
+    const status = document.getElementById("backupStatus");
+    status.textContent = "Données sauvegardées - " + new Date().toLocaleTimeString();
+    status.style.color = "#4CAF50";
+    
+    setTimeout(() => {
+        status.style.color = "";
+    }, 2000);
+}
+
+// Main function to setup margin input listeners
+function setupMarginInputListeners() { //-------------------------------////////////////
+    // List all margin input IDs
+    const marginInputIds = [
+        "yesterdayCash", 
+        "todayCash", 
+        "yesterdayDeler",
+        "inwiRecharge", 
+        "orangeRecharge", 
+        "iamRecharge",
+        "remainingInwi", 
+        "remainingOrange", 
+        "remainingIAM",
+        "remainingCashe"
+    ];
+
+    // Add event listeners to each input
+    marginInputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            // Save on change
+            input.addEventListener('change', handleMarginInputChange);
+            
+            // Also save when user leaves the field
+            input.addEventListener('blur', handleMarginInputChange);
+            
+            // Update dealers total when remaining values change
+            if (id.startsWith('remaining')) {
+                input.addEventListener('input', updateDealersTotal);
+            }
+        }
+    });
+}
+
+// Handle margin input changes
+function handleMarginInputChange() {
+    saveMarginInputs();
+    showAutoSaveNotification();
+}
+
+// Save current margin inputs to storage
+function saveMarginInputs() {
+    const dateKey = formatDate(currentDate);
+    
+    // Initialize day data if it doesn't exist
+    if (!allData[dateKey]) {
+        allData[dateKey] = {
+            products: [],
+            credits: [],
+            marginData: null
+        };
+    }
+    
+    // Get existing margin calculation (if any)
+    const existingCalculation = allData[dateKey].marginData?.margin || 0;
+    const existingDealersTotal = allData[dateKey].marginData?.totalDealersToday || 0;
+    
+    // Save all current values while preserving existing calculations
+    allData[dateKey].marginData = {
+        // Input values
+        yesterdayCash: parseFloat(document.getElementById("yesterdayCash").value) || 0,
+        todayCash: parseFloat(document.getElementById("todayCash").value) || 0,
+        yesterdayDeler: parseFloat(document.getElementById("yesterdayDeler").value) || 0,
+        
+        // Recharge values
+        recharges: {
+            inwi: parseFloat(document.getElementById("inwiRecharge").value) || 0,
+            orange: parseFloat(document.getElementById("orangeRecharge").value) || 0,
+            iam: parseFloat(document.getElementById("iamRecharge").value) || 0,
+            total: 0 // Will be calculated when needed
+        },
+        
+        // Remaining values
+        remaining: {
+            inwi: parseFloat(document.getElementById("remainingInwi").value) || 0,
+            orange: parseFloat(document.getElementById("remainingOrange").value) || 0,
+            iam: parseFloat(document.getElementById("remainingIAM").value) || 0,
+            cashe: parseFloat(document.getElementById("remainingCashe").value) || 0,
+            total: 0 // Will be calculated when needed
+        },
+        
+        // Preserve existing calculations
+        margin: existingCalculation,
+        totalDealersToday: existingDealersTotal,
+        
+        // Additional stats
+        totalSales: parseFloat(document.getElementById("totalSales").textContent.replace(" DH", "")) || 0,
+        pendingCredits: parseFloat(document.getElementById("pendingCredits").textContent.replace(" DH", "")) || 0,
+        
+        // Timestamp
+        lastUpdated: new Date().toISOString()
+    };
+    
+    // Calculate and update totals
+    allData[dateKey].marginData.recharges.total = 
+        allData[dateKey].marginData.recharges.inwi +
+        allData[dateKey].marginData.recharges.orange +
+        allData[dateKey].marginData.recharges.iam;
+        
+    allData[dateKey].marginData.remaining.total = 
+        allData[dateKey].marginData.remaining.inwi +
+        allData[dateKey].marginData.remaining.orange +
+        allData[dateKey].marginData.remaining.iam;
+    
+    // Save to localStorage
+    localStorage.setItem("commercialData", JSON.stringify(allData));
+    
+    // Return the updated data for debugging
+    return allData[dateKey].marginData;
+}
+
+// Update dealers total display
+function updateDealersTotal() {
+    const total = 
+        (parseFloat(document.getElementById("remainingInwi").value || 0) +
+        (parseFloat(document.getElementById("remainingOrange").value || 0) +
+        (parseFloat(document.getElementById("remainingIAM").value || 0))));
+
+    document.getElementById("totalDealersToday").textContent = 
+        `Total de Reste des 3 Dealers : ${total.toFixed(2)} DH`;
+}
+
+// Show auto-save notification
+function showAutoSaveNotification() {
+    const status = document.getElementById("backupStatus");
+    const originalText = status.textContent;
+    
+    status.textContent = "Sauvegarde automatique réussie - " + new Date().toLocaleTimeString();
+    status.style.color = "#4CAF50";
+    
+    setTimeout(() => {
+        status.textContent = originalText;
+        status.style.color = "";
+    }, 2000);
+}
+
+// Complete initialization code
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date and load data
+    currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    allData = JSON.parse(localStorage.getItem("commercialData")) || {};
+    
+    // Setup all event listeners
+    setupFormEventListeners();
+    setupTabEventListeners();
+    setupMarginInputListeners();  // <-- This is our margin listener setup
+    
+    // Load initial data
+    loadDayData(currentDate);
+    
+    // Initialize datepicker
+    $("#datepicker").datepicker({
+        language: "fr",
+        autoClose: true,
+        dateFormat: "dd-mm-yyyy",
+        onSelect: function(formattedDate) {
+            const parts = formattedDate.split("-");
+            const selectedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            loadDayData(selectedDate);
+        }
+    });
+});
+
+    function loadMarginData() { // ----------------------------------------///////////
+    const dateKey = formatDate(currentDate);
+    
+    // Don't reset inputs if they already have values
     if (!allData[dateKey] || !allData[dateKey].marginData) {
-        resetMarginInputs();
-        return;
+        return; // Exit if no saved data, but don't reset inputs
     }
 
     const marginData = allData[dateKey].marginData;
     
-    // Liste complète des champs avec leurs valeurs par défaut
-    const fields = {
-        yesterdayCash: marginData.yesterdayCash || 0,
-        todayCash: marginData.todayCash || 0,
-        yesterdayDeler: marginData.yesterdayDeler || 0,
-        inwiRecharge: marginData.recharges?.inwi || 0,
-        orangeRecharge: marginData.recharges?.orange || 0,
-        iamRecharge: marginData.recharges?.iam || 0,
-        remainingInwi: marginData.remaining?.inwi || 0,
-        remainingOrange: marginData.remaining?.orange || 0,
-        remainingIAM: marginData.remaining?.iam || 0,
-        remainingCashe: marginData.remaining?.cashe || 0
+    // Only update empty fields with saved data
+    const updateIfEmpty = (id, value) => {
+        const element = document.getElementById(id);
+        if (element && (!element.value || element.value === "0") && value !== undefined) {
+            element.value = value;
+        }
     };
 
-    // Remplit les champs
-    Object.entries(fields).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) element.value = value;
-    });
+    updateIfEmpty("yesterdayCash", marginData.yesterdayCash);
+    updateIfEmpty("todayCash", marginData.todayCash);
+    updateIfEmpty("yesterdayDeler", marginData.yesterdayDeler);
+    updateIfEmpty("inwiRecharge", marginData.recharges?.inwi);
+    updateIfEmpty("orangeRecharge", marginData.recharges?.orange);
+    updateIfEmpty("iamRecharge", marginData.recharges?.iam);
+    updateIfEmpty("remainingInwi", marginData.remaining?.inwi);
+    updateIfEmpty("remainingOrange", marginData.remaining?.orange);
+    updateIfEmpty("remainingIAM", marginData.remaining?.iam);
+    updateIfEmpty("remainingCashe", marginData.remaining?.cashe);
 
-    // Met à jour le résultat si disponible
+    // Update result if available
     if (marginData.margin !== undefined) {
         document.getElementById("marginResult").textContent = 
             marginData.margin.toFixed(2) + " DH";
     }
-
-    // Calcul et affichage du total
-    const totalToday = 
-    (parseFloat(document.getElementById("remainingInwi").value || 0) +
-    (parseFloat(document.getElementById("remainingOrange").value || 0)) +
-    (parseFloat(document.getElementById("remainingIAM").value || 0)));
-
-    document.getElementById("totalDealersToday").textContent = 
-    `Total de Reste des 3 Dealers : ${totalToday.toFixed(2)} DH`; //--------------------------------
-
-    if (marginData.margin !== undefined) {
-    const marginResult = document.getElementById("marginResult");
-    marginResult.textContent = marginData.margin.toFixed(2) + " DH";
-    
-    if (marginData.margin < 0) {
-      marginResult.style.color = "red";
-    } else {
-      marginResult.style.color = "";
-    }
-  }
 }
 
       // Modifiez la fonction loadDayData pour inclure le chargement des données de marge
@@ -500,7 +662,10 @@
         updateStats();
         loadMarginData();
       }
+
+      saveMarginInputs
     </script>
+
 
     <!-- Librairies JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -516,7 +681,6 @@
       // Variables globales
       let currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-      let allData = JSON.parse(localStorage.getItem("commercialData")) || {};
       let products = [];
       let credits = [];
 
@@ -601,10 +765,13 @@
 
       // Changement de jour
       function changeDay(days) {
-        const newDate = new Date(currentDate);
-        newDate.setDate(newDate.getDate() + days);
-        loadDayData(newDate);
-      }
+    // Save current inputs before changing day
+    saveMarginInputs();
+    
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + days);
+    loadDayData(newDate);
+    }
 
       // Mise à jour de l'affichage des dates
       function updateDateDisplay() {
@@ -627,18 +794,24 @@
         }
       }
 
-      // Sauvegarde des données
+      // Sauvegarde des données -----------------------------------------------------------///
       function saveData() {
-        const dateKey = formatDate(currentDate);
-        allData[dateKey] = {
+      const dateKey = formatDate(currentDate);
+      
+      // Get current margin data if it exists
+      const currentMarginData = allData[dateKey]?.marginData || null;
+      
+      allData[dateKey] = {
           products: products,
           credits: credits,
-        };
+          marginData: currentMarginData  // Preserve existing margin data
+      };
 
-        localStorage.setItem("commercialData", JSON.stringify(allData));
-        document.getElementById("backupStatus").textContent =
+      localStorage.setItem("commercialData", JSON.stringify(allData));
+      document.getElementById("backupStatus").textContent =
           "Données mises à jour - " + new Date().toLocaleTimeString();
       }
+
 
       // Gestion des onglets
       const tabs = document.querySelectorAll(".tab");
@@ -839,16 +1012,19 @@
         }
       }
 
-      function toggleCreditStatus(id) {
-        credits = credits.map((c) => {
+      function toggleCreditStatus(id) { //-------------------------------------------///
+      credits = credits.map((c) => {
           if (c.id === id) {
-            return { ...c, paid: !c.paid };
+              return { ...c, paid: !c.paid };
           }
           return c;
-        });
-        saveData();
-        renderCredits();
-        updateStats();
+      });
+      
+      // Save both credits and current margin data
+      saveData();
+      
+      renderCredits();
+      updateStats();
       }
 
       function deleteCredit(id) {
